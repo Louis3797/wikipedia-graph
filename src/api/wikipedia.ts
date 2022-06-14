@@ -1,24 +1,25 @@
-import { API, PARAMS } from "../utils/constants";
+import { API_PREFIX, API_SUFFIX } from "../utils/constants";
 
-export const getLinks = () => {
-  let url = API + "?origin=*";
-  Object.keys(PARAMS).forEach(function (key) {
-    url += "&" + key + "=" + PARAMS[key];
-  });
+const getLinks = (title: string): string[] => {
+  const results: string[] = [];
 
+  const url = API_PREFIX + title + API_SUFFIX;
   fetch(url)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (response) {
-      var pages = response.query.pages;
-      for (var p in pages) {
-        for (var l of pages[p].links) {
-          console.log(l.title);
+    .then((response) => response.json())
+    .then((response) => {
+      console.log(response);
+      const { pages } = response;
+      for (const p in pages) {
+        for (const l of pages[p].links) {
+          results.push(l.title as string);
         }
       }
     })
-    .catch(function (error) {
-      console.log(error);
+    .catch((error) => {
+      throw new Error(error);
     });
+
+  return results;
 };
+
+export default getLinks;
