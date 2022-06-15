@@ -6,6 +6,7 @@ import { API_PREFIX, API_SUFFIX } from "./utils/constants";
 import generateColorHex from "./utils/generateHexColor";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
 import { Link, Node } from "./types";
+import { useControls } from "leva";
 
 function App() {
   // stores all node as state
@@ -14,11 +15,24 @@ function App() {
   // stores all connections between nodes as state
   const [links, setLinks] = useState<Link[]>([]);
 
-  // stores value of textfield
-  const [search, setSearch] = useState<string>("");
-
   // ref of our graph
   const graphRef = useRef<any>();
+
+  const config = useControls({
+    page: "Albert Einstein",
+    depth: {
+      value: 5,
+      min: 1,
+      max: 30,
+      step: 1
+    },
+    numLinks: {
+      value: 5,
+      min: 1,
+      max: 50,
+      step: 1
+    }
+  });
 
   // method to zoom in to a node if we click on it
   const handleNodeClick = useCallback(
@@ -98,7 +112,7 @@ function App() {
 
     // create first node and add it to nodes
     const firstNode: Node = {
-      title: "Albert Einstein",
+      title: config.page,
       color: generateColorHex()
     };
 
@@ -106,16 +120,16 @@ function App() {
     setNodes((n) => [...n, firstNode]);
 
     // call getData to scrap wikipedia page of first node
-    getData("Albert Einstein", 5, 3, firstNode);
+    getData(config.page, config.depth, config.numLinks, firstNode);
 
     // setup postprocessing
     const bloomPass: UnrealBloomPass = new UnrealBloomPass();
-    bloomPass.strength = 1.5;
+    bloomPass.strength = 1;
     bloomPass.radius = 1;
     bloomPass.threshold = 0.1;
     graphRef.current.postProcessingComposer().addPass(bloomPass);
-    graphRef.current.d3Force("charge").strength(-200);
-  }, []);
+    // graphRef.current.d3Force("charge").strength(-200);
+  }, [config]);
 
   return (
     <div className="h-full w-screen">
@@ -137,13 +151,6 @@ function App() {
         linkCurvature={Math.random()}
         linkCurveRotation={Math.random() * 360}
         // onEngineStop={() => fgRef.current.zoomToFit(400)}
-      />
-      <p className="absolute top-3 right-5 text-lg text-gray-100">Nodes: {nodes.length}</p>
-      <input
-        className="absolute m-auto right-0 left-0 w-96 text-white px-2 py-1 bg-gray-600 rounded-xl top-3 focus:outline-none"
-        type="text"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
       />
     </div>
   );
