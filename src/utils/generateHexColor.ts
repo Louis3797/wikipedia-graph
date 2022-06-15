@@ -1,6 +1,9 @@
+// genrates a light hex color and returns the string
 export default function generateColorHex(): string {
+  const letters = "BCDEF".split("");
   let color = "#";
-  for (let i = 0; i < 3; i++)
-    color += ("0" + Math.floor(((1 + Math.random()) * Math.pow(16, 2)) / 2).toString(16)).slice(-2);
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * letters.length)];
+  }
   return color;
 }
