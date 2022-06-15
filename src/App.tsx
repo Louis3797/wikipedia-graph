@@ -5,15 +5,8 @@ import { ForceGraph3D } from "react-force-graph";
 import { API_PREFIX, API_SUFFIX } from "./utils/constants";
 import generateColorHex from "./utils/generateHexColor";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
-interface Node {
-  title: string;
-  color: string;
-}
+import { Link, Node } from "./types";
 
-interface Link {
-  source: Node;
-  target: Node;
-}
 function App() {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
