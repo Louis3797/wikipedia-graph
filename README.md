@@ -3,7 +3,7 @@
   <h1>Wikipedia Graph</h1>
   
   <p>
-  Visualize Relations between Wikipedia Pages
+  Visualize connections between wikipedia pages
   </p>
 
   
@@ -42,6 +42,8 @@
 
 <br />
 
+![screenshot](assets/screenshot2.png)
+
 <!-- Table of Contents -->
 # Table of Contents
 
@@ -60,9 +62,10 @@
 ## About the Project
 
 <div align="center"> 
-  <img src="" alt="screenshot" />
+  <img src="assets/screenshot1.png" alt="screenshot" />
 </div>
 
+With this tool you can visualize the connections between Wikipedia pages. You can also specify how deep the search should go and how many connections should be taken per page. The result are incredibly nice looking graphs, as seen in the images above. Note that the program starts to slow down when the graph reaches a certain size, since the whole thing runs in the browser.
 
 
 <!-- Getting Started -->
@@ -118,7 +121,7 @@ Start the server
 <!-- License -->
 ## License
 
-Distributed under the no License. See LICENSE.txt for more information.
+Distributed under the MIT License. See LICENSE.txt for more information.
 
 
 <!-- Contact -->
