@@ -1,9 +1,9 @@
 <div align="center">
 
-  <h1>Wikipedia Graph</h1>
+  <h1>3D Wikipedia Graph</h1>
   
   <p>
-  Visualize connections between wikipedia pages
+  Visualize connections between wikipedia pages as froce directed graph
   </p>
 
   
@@ -49,6 +49,8 @@
 
 - [Table of Contents](#table-of-contents)
   - [About the Project](#about-the-project)
+    - [Features](#features)
+    - [Tech Stack](#tech-stack)
   - [Getting Started](#getting-started)
     - [Prerequisites](#prerequisites)
     - [Installation](#installation)
@@ -67,6 +69,23 @@
 
 With this tool you can visualize the connections between Wikipedia pages. You can also specify how deep the search should go and how many connections should be taken per page. The result are incredibly nice looking graphs, as seen in the images above. Note that the program starts to slow down when the graph reaches a certain size, since the whole thing runs in the browser.
 
+### Features
+
+- Force Directed Graph
+- 3D
+- Zoom on Node when clicked
+- Postprocessing
+- Adjustable Depth
+- Adjustable Connections per Vertex
+
+### Tech Stack
+
+- [Typescript](https://www.typescriptlang.org/)
+- [React.js](https://reactjs.org/)
+- [Three.js](https://threejs.org/)
+- [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction)
+- [React Force Graph](https://github.com/vasturiano/react-force-graph)
+- [Leva](https://github.com/pmndrs/leva)
 
 <!-- Getting Started -->
 ## Getting Started
