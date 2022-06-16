@@ -27,7 +27,7 @@ function App() {
       step: 1
     },
     numLinks: {
-      value: 5,
+      value: 10,
       min: 1,
       max: 50,
       step: 1
@@ -132,7 +132,7 @@ function App() {
   }, [config]);
 
   return (
-    <div className="h-full w-screen">
+    <div className="container">
       <ForceGraph3D
         graphData={{ nodes, links }}
         linkWidth={2}
