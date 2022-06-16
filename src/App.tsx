@@ -5,73 +5,96 @@ import { ForceGraph3D } from "react-force-graph";
 import { API_PREFIX, API_SUFFIX } from "./utils/constants";
 import generateColorHex from "./utils/generateHexColor";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
-interface Node {
-  title: string;
-  color: string;
-}
+import { Link, Node } from "./types";
+import { useControls } from "leva";
 
-interface Link {
-  source: Node;
-  target: Node;
-}
 function App() {
+  // stores all node as state
   const [nodes, setNodes] = useState<Node[]>([]);
+
+  // stores all connections between nodes as state
   const [links, setLinks] = useState<Link[]>([]);
 
-  const [search, setSearch] = useState<string>("");
+  // ref of our graph
+  const graphRef = useRef<any>();
 
-  const fgRef = useRef<any>();
+  const config = useControls({
+    page: "Albert Einstein",
+    depth: {
+      value: 5,
+      min: 1,
+      max: 30,
+      step: 1
+    },
+    numLinks: {
+      value: 5,
+      min: 1,
+      max: 50,
+      step: 1
+    }
+  });
 
-  const handleClick = useCallback(
+  // method to zoom in to a node if we click on it
+  const handleNodeClick = useCallback(
     (node: any) => {
       // Aim at node from outside it
       const distance = 40;
       const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
 
-      fgRef.current.cameraPosition(
+      graphRef.current.cameraPosition(
         { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
         node, // lookAt ({ x, y, z })
         3000 // ms transition duration
       );
     },
-    [fgRef]
+    [graphRef]
   );
 
-  /*
-    Recursice function to fetch Wikipedia links and create nodes
-  */
-  function getData(title: string, depth: number, parentNode: Node): void {
+  // Recursice function to fetch Wikipedia links and create nodes
+  // title: Title of the page we want to fetch the data fro
+  // depth: Depth of recursion
+  // numberOfLinks: Number of Links we want to fetch from the given title page
+  // parentNode: ParentNode for link creation
+  function getData(title: string, depth: number, numberOfLinks: number, parentNode: Node): void {
+    // if depth is 0 than return
     if (depth === 0) {
       return;
     }
 
+    // reduce depth to get to the
+    // base case of the recursion
     depth -= 1;
 
-    const url = API_PREFIX + title + API_SUFFIX;
+    // url for fetching
+    const url = API_PREFIX + title + API_SUFFIX + numberOfLinks;
+
+    // fetch and cache results
     fetch(url, { cache: "force-cache" })
       .then((response) => response.json())
       .then((response) => {
         const pages = response.query.pages;
+
         for (let p in pages) {
+          // generate random light hex Color
+          const hexColor: string = generateColorHex();
           for (let l of pages[p].links) {
+            // get title
             const res: string = l.title;
 
+            // create new node
             const newNode: Node = {
               title: res,
-              color: generateColorHex()
+              color: hexColor
             };
 
             setNodes((n) => [...n, newNode]);
 
+            // create link
             const newLink: Link = { source: parentNode, target: newNode };
             setLinks((l) => [...l, newLink]);
 
-            const set: Set<Node> = new Set();
-            nodes.forEach((n) => set.add(n));
-            set.forEach((n) => {
-              setNodes((e) => [...e, n]);
-            });
-            getData(res, depth, newNode);
+            // recursive call
+            getData(res, depth, numberOfLinks, newNode);
           }
         }
       })
@@ -81,25 +104,32 @@ function App() {
   }
 
   useEffect(() => {
+    // delete all node
     setNodes([]);
+
+    // delete all links between nodes
     setLinks([]);
 
+    // create first node and add it to nodes
     const firstNode: Node = {
-      title: "Albert Einstein",
+      title: config.page,
       color: generateColorHex()
     };
 
+    // add firdt node
     setNodes((n) => [...n, firstNode]);
 
-    const bloomPass: any = new UnrealBloomPass();
-    bloomPass.strength = 1.5;
+    // call getData to scrap wikipedia page of first node
+    getData(config.page, config.depth, config.numLinks, firstNode);
+
+    // setup postprocessing
+    const bloomPass: UnrealBloomPass = new UnrealBloomPass();
+    bloomPass.strength = 1;
     bloomPass.radius = 1;
     bloomPass.threshold = 0.1;
-    fgRef.current.postProcessingComposer().addPass(bloomPass);
-    fgRef.current.d3Force("charge").strength(-200);
-
-    getData("Albert Einstein", 5, firstNode);
-  }, []);
+    graphRef.current.postProcessingComposer().addPass(bloomPass);
+    // graphRef.current.d3Force("charge").strength(-200);
+  }, [config]);
 
   return (
     <div className="h-full w-screen">
@@ -107,10 +137,10 @@ function App() {
         graphData={{ nodes, links }}
         linkWidth={2}
         // @ts-ignore
-        nodeAutoColorBy="group"
+        nodeAutoColorBy={(n) => n.color}
         // linkDirectionalParticles={2}
-        ref={fgRef}
-        onNodeClick={handleClick}
+        ref={graphRef}
+        onNodeClick={handleNodeClick}
         // @ts-ignore
         nodeLabel={(n) => `${n.title}`}
         nodeVal={40}
@@ -121,13 +151,6 @@ function App() {
         linkCurvature={Math.random()}
         linkCurveRotation={Math.random() * 360}
         // onEngineStop={() => fgRef.current.zoomToFit(400)}
-      />
-      <p className="absolute top-3 right-5 text-lg text-gray-100">Nodes: {nodes.length}</p>
-      <input
-        className="absolute m-auto right-0 left-0 w-96 text-white px-2 py-1 bg-gray-600 rounded-xl top-3 focus:outline-none"
-        type="text"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
       />
     </div>
   );
